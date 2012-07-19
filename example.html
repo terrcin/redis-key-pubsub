@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/d3/2.8.1/d3.v2.min.js" type="text/javascript"></script>  
+</head>
+<body onload="load();">
+
+  <h3>Total page views</h3>
+
+  <style type='text/css'>
+  
+    .chart div {
+       font: 10px sans-serif;
+       background-color: steelblue;
+       text-align: right;
+       padding: 3px;
+       margin: 1px;
+       color: white;
+     }
+
+    .chart rect {
+       fill: steelblue;
+       stroke: white;
+     }
+
+  </style>
+
+  <script>
+
+    var socket;
+
+    var chart;
+    var data;
+
+    var w, h, x, y;
+
+    function load() {
+
+      w = 20;
+      h = 80;
+      
+      x = d3.scale.linear()
+                .domain([0, 1])
+                .range([0, w]);
+      
+      y = d3.scale.linear()
+                .domain([0, 100])
+                .rangeRound([0, h]);
+
+      var timestamp = Math.floor(new Date().getTime() / 10000);
+
+      data = [{value: 0, time: timestamp},
+              {value: 0, time: timestamp-1},
+              {value: 0, time: timestamp-2},
+              {value: 0, time: timestamp-3},
+              {value: 0, time: timestamp-4},
+              {value: 0, time: timestamp-5},
+              {value: 0, time: timestamp-6},
+              {value: 0, time: timestamp-7},
+              {value: 0, time: timestamp-8},
+              {value: 0, time: timestamp-9},
+              {value: 0, time: timestamp-10},
+              {value: 0, time: timestamp-11},
+              {value: 0, time: timestamp-12},
+              {value: 0, time: timestamp-13},
+              {value: 0, time: timestamp-14},
+              {value: 0, time: timestamp-15},
+              {value: 0, time: timestamp-16},
+              {value: 0, time: timestamp-17},
+              {value: 0, time: timestamp-18},
+              {value: 0, time: timestamp-19},
+              {value: 0, time: timestamp-20},
+              {value: 0, time: timestamp-21},
+              {value: 0, time: timestamp-22},
+              {value: 0, time: timestamp-23},
+              {value: 0, time: timestamp-24},
+              {value: 0, time: timestamp-25},
+              {value: 0, time: timestamp-26},
+              {value: 0, time: timestamp-27},
+              {value: 0, time: timestamp-28},
+              {value: 0, time: timestamp-29}];
+
+      chart = d3.select("body").append("svg")
+                    .attr("class", "chart")
+                    .attr("width", w * data.length - 1)
+                    .attr("height", h);
+
+      chart.selectAll("rect")
+           .data(data)
+           .enter().append("rect")
+           .attr("x", function(d, i) { return x(i) - .5; })
+           .attr("y", function(d) { return h - y(d.value) - .5; })
+           .attr("width", w)
+           .attr("height", function(d) { return y(d.value); });
+
+      chart.append("line")
+           .attr("x1", 0)
+           .attr("x2", w * data.length)
+           .attr("y1", h - .5)
+           .attr("y2", h - .5)
+           .style("stroke", "#000")
+
+
+      socket = io.connect(window.location.origin + ':4000');
+      socket.on('pageViews', function (update) {
+
+        if (update.time === data[0].time) {
+          data[0].value = update.value;
+        }
+        else {
+          data.unshift(update);
+          data.pop();
+        }
+
+        redraw();
+
+      });
+
+
+    }
+
+    function redraw() {
+  
+      // Update…
+      chart.selectAll("rect")
+          .data(data)
+          .transition()
+          .duration(1000)
+          .attr("y", function(d) { return h - y(d.value) - .5; })
+          .attr("height", function(d) { return y(d.value); });
+    }    
+
+  </script>
+
+</body>
+</html>
