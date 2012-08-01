@@ -133,14 +133,14 @@ function rpoplpush(args, command) {
   lrange([args[1]], command);
 }
 
-function smembers(args) {
+function smembers(args, command) {
   var key = args[0][0].toString();
   var subs = findSubscribers(key);
   if (subs.length > 0)
     client.smembers(key, function (err, resp) { publish(subs,key, resp, command) });  
 }
 
-function smove(args) {
+function smove(args, command) {
   smembers([args[0]], command);
   smembers([args[1]], command);
 }
