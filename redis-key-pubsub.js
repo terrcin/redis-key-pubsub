@@ -1,3 +1,5 @@
+// copied from: https://github.com/terrcin/redis-key-pubsub
+
 var _und = require("underscore");
 
 var redisSync = require('redis-sync');
@@ -242,7 +244,8 @@ var commands = {// STRINGS
 
 sync.on('command', function(command, args) {
 
-  if (command != 'ping') {
+  // commands to ignore
+  if (command != 'ping' && command != 'multi' && command != 'exec') {
 
     //console.log(command, args[0][0].toString(), args)
 
